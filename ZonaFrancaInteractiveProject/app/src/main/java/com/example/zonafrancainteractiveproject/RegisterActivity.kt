@@ -56,7 +56,7 @@ class RegisterActivity : AppCompatActivity() {
                 runOnUiThread {
                     if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
                         Toast.makeText(this, "Registro exitoso", Toast.LENGTH_LONG).show()
-                        val intent = Intent(this, SuccessActivity::class.java)
+                        val intent = Intent(this, MapActivity::class.java)
                         startActivity(intent)
                     } else {
                         Toast.makeText(this, "Registro fallido", Toast.LENGTH_LONG).show()

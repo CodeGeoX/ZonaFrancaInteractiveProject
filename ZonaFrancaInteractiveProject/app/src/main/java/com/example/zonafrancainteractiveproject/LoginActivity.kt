@@ -48,7 +48,7 @@ class LoginActivity : AppCompatActivity() {
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     runOnUiThread {
                         Toast.makeText(this, "Login exitoso", Toast.LENGTH_LONG).show()
-                        val intent = Intent(this, SuccessActivity::class.java)
+                        val intent = Intent(this, MapActivity::class.java)
                         startActivity(intent)
                     }
                 } else {
@@ -63,5 +63,6 @@ class LoginActivity : AppCompatActivity() {
             }
         }.start()
     }
+
 
 }
