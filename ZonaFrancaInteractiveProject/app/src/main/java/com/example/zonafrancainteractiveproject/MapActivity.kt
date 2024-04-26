@@ -24,9 +24,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 10f))  // Added zoom level for better visibility
+        val zonaFrancaBarcelona = LatLng(41.3544, 2.1265)
+        mMap.addMarker(MarkerOptions().position(zonaFrancaBarcelona).title("Zona Franca de Barcelona"))
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(zonaFrancaBarcelona, 17f))
     }
-
 }
