@@ -8,35 +8,22 @@
 
 
     <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleX="4"
-        android:scaleY="4"
+        android:id="@+id/imageView7"
+        android:layout_width="0dp"
+        android:layout_height="500dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.432"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/cuadrado_blurry" />
-
-    <ImageView
-        android:id="@+id/imageView11"
-        android:layout_width="394dp"
-        android:layout_height="575dp"
-        android:scaleX="3"
-        android:scaleY="1.99"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.352"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/cardviewdown" />
+        app:layout_constraintVertical_bias="0.622"
+        app:srcCompat="@drawable/fondo_txt_login" />
 
     <TextView
         android:id="@+id/LoginText"
         android:layout_width="261dp"
         android:layout_height="79dp"
-        android:layout_marginTop="44dp"
+        android:layout_marginTop="80dp"
 
         android:autoSizeTextType="uniform"
         android:gravity="center"
@@ -49,10 +36,11 @@
         android:id="@+id/imageView3"
         android:layout_width="86dp"
         android:layout_height="82dp"
+        android:layout_marginTop="48dp"
         android:scaleX="2"
         android:scaleY="2"
-        app:layout_constraintBottom_toTopOf="@+id/imageView11"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/icono" />
@@ -61,9 +49,9 @@
         android:id="@+id/LoginEmail"
         android:layout_width="295dp"
         android:layout_height="50dp"
-        android:layout_marginTop="116dp"
+        android:layout_marginTop="28dp"
+        android:hint="Introduce tu email"
         android:ems="10"
-        android:gravity="center"
         android:inputType="text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -73,9 +61,9 @@
         android:id="@+id/LoginPassword"
         android:layout_width="295dp"
         android:layout_height="50dp"
-        android:layout_marginTop="52dp"
+        android:layout_marginTop="24dp"
+        android:hint="Introduce tu contraseÃ±a"
         android:ems="10"
-        android:gravity="center"
         android:inputType="text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -83,14 +71,24 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/SendLoginButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="64dp"
+        android:layout_width="177dp"
+        android:layout_height="65dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/buttons"
         android:text="Login"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView11"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/LoginPassword" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/SendToRegiterButton"
+        android:layout_width="185dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="144dp"
+        android:background="@drawable/buttons"
+        android:text="No estoy registrado"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.278"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/LoginPassword" />
 

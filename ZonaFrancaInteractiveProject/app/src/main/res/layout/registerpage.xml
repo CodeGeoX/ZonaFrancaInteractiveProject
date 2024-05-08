@@ -8,17 +8,14 @@
 
     <ImageView
         android:id="@+id/imageView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleX="3"
-        android:scaleY="1.9"
+        android:layout_width="381dp"
+        android:layout_height="486dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.454"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.619"
-        app:srcCompat="@drawable/cardviewdown" />
+        app:layout_constraintVertical_bias="0.689"
+        app:srcCompat="@drawable/fondo_txt_login" />
 
     <TextView
         android:id="@+id/RegisterText"
@@ -72,15 +69,30 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/SendRegisterButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="138dp"
+        android:layout_height="60dp"
+        android:background="@drawable/buttons"
         android:text="Register"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.835"
         app:layout_constraintStart_toStartOf="parent"
-        android:background="@drawable/buttons"
         app:layout_constraintTop_toBottomOf="@+id/RegisterPassword"
-        app:layout_constraintVertical_bias="0.172" />
+        app:layout_constraintVertical_bias="0.233" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/SendBackToLoginButton"
+        android:layout_width="149dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/buttons"
+        android:text="Ya estoy logeado"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView4"
+        app:layout_constraintStart_toStartOf="@+id/imageView4"
+        app:layout_constraintTop_toBottomOf="@+id/RegisterPassword"
+        app:layout_constraintVertical_bias="0.032" />
+
 
     <ImageView
         android:id="@+id/imageView5"
@@ -90,7 +102,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.689"
+        app:layout_constraintVertical_bias="0.529"
         app:srcCompat="@drawable/icono" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

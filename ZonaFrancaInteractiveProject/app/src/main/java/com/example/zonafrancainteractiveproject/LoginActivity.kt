@@ -20,6 +20,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var passwordEditText: EditText
     private lateinit var loginButton: Button
     private lateinit var sharedPreferences: android.content.SharedPreferences
+    private lateinit var notRegisteredButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +30,11 @@ class LoginActivity : AppCompatActivity() {
         passwordEditText = findViewById(R.id.LoginPassword)
         loginButton = findViewById(R.id.SendLoginButton)
         sharedPreferences = this.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        notRegisteredButton = findViewById(R.id.SendToRegiterButton)
 
+        notRegisteredButton.setOnClickListener {
+            startActivity(Intent(this, RegisterActivity::class.java))
+        }
         loginButton.setOnClickListener {
             val email = emailEditText.text.toString()
             val password = passwordEditText.text.toString()
@@ -40,7 +45,7 @@ class LoginActivity : AppCompatActivity() {
     private fun loginUser(email: String, password: String) {
         Thread {
             try {
-                val url = URL("http://192.168.76.174:8000/api/login")
+                val url = URL("http://192.168.199.174:8000/api/login")
                 val urlConnection = url.openConnection() as HttpURLConnection
                 urlConnection.requestMethod = "POST"
                 urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")

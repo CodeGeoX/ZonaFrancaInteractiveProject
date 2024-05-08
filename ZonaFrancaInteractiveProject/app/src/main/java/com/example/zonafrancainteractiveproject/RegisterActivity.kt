@@ -22,6 +22,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var passwordEditText: EditText
     private lateinit var registerButton: Button
     private lateinit var sharedPreferences: android.content.SharedPreferences
+    private lateinit var alreadyLoggedInButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +34,12 @@ class RegisterActivity : AppCompatActivity() {
         emailEditText = findViewById(R.id.RegisterEmail)
         passwordEditText = findViewById(R.id.RegisterPassword)
         registerButton = findViewById(R.id.SendRegisterButton)
+        alreadyLoggedInButton = findViewById(R.id.SendBackToLoginButton)
 
+
+        alreadyLoggedInButton.setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
+        }
         registerButton.setOnClickListener {
             val name = nameEditText.text.toString()
             val email = emailEditText.text.toString()
@@ -45,7 +51,7 @@ class RegisterActivity : AppCompatActivity() {
     private fun registerUser(name: String, email: String, password: String) {
         Thread {
             try {
-                val url = URL("http://192.168.76.174:8000/api/register")
+                val url = URL("http://192.168.199.174:8000/api/register")
                 val urlConnection = url.openConnection() as HttpURLConnection
                 urlConnection.requestMethod = "POST"
                 urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
