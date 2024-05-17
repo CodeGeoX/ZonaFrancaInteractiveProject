@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:background="#D8A1A1"
+
+    android:layout_height="100dp">
+
+    <TextView
+        android:id="@+id/tv_Tiitulo"
+        android:layout_width="242dp"
+        android:layout_height="53dp"
+        android:layout_marginStart="4dp"
+        android:autoSizeTextType="uniform"
+        android:text="Parada de las 3 senias"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.51" />
+
+    <ImageView
+        android:id="@+id/imgForma"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv_Tiitulo"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/walk" />
+
+    <TextView
+        android:id="@+id/tv_tiempoEstimado"
+        android:layout_width="66dp"
+        android:layout_height="59dp"
+        android:layout_marginStart="23dp"
+        android:autoSizeTextType="uniform"
+        android:text="TextView"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/imgForma"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.512" />
+</androidx.constraintlayout.widget.ConstraintLayout>

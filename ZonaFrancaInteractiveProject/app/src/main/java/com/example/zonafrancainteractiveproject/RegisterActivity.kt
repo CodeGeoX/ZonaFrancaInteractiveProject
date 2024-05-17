@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import java.io.BufferedReader
 import java.io.BufferedWriter
@@ -35,7 +35,6 @@ class RegisterActivity : AppCompatActivity() {
         passwordEditText = findViewById(R.id.RegisterPassword)
         registerButton = findViewById(R.id.SendRegisterButton)
         alreadyLoggedInButton = findViewById(R.id.SendBackToLoginButton)
-
 
         alreadyLoggedInButton.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
@@ -74,21 +73,32 @@ class RegisterActivity : AppCompatActivity() {
                     Log.d("RegisterActivity", "Token stored: $token")
 
                     runOnUiThread {
-                        Toast.makeText(this, "Registro exitoso", Toast.LENGTH_LONG).show()
+                        showAlertDialog("Registro exitoso", "¡Registro completado exitosamente!")
                         startActivity(Intent(this, MapActivity::class.java))
                     }
                 } else {
                     val response = BufferedReader(InputStreamReader(urlConnection.errorStream)).use { it.readText() }
+                    val jsonObject = JSONObject(response)
+                    val errorMessage = jsonObject.optString("message", "Registro fallido")
+
                     runOnUiThread {
-                        Toast.makeText(this, "Registro fallido: $response", Toast.LENGTH_LONG).show()
+                        showAlertDialog("Registro fallido", errorMessage)
                     }
                 }
             } catch (e: Exception) {
                 runOnUiThread {
-                    Toast.makeText(this, "Error en registro: ${e.message}", Toast.LENGTH_LONG).show()
+                    showAlertDialog("Error en registro", "Error en registro: ${e.message}")
                 }
                 Log.e("RegisterActivity", "Error en registro: ${e.message}", e)
             }
         }.start()
+    }
+
+    private fun showAlertDialog(title: String, message: String) {
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 }

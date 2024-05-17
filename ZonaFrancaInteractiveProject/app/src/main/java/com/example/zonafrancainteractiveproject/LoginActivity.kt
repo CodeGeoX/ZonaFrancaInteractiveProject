@@ -1,11 +1,12 @@
 package com.example.zonafrancainteractiveproject
+
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -53,6 +54,7 @@ class LoginActivity : AppCompatActivity() {
 
                 val out = BufferedWriter(OutputStreamWriter(urlConnection.outputStream))
                 out.write("email=$email&password=$password")
+                out.flush()
                 out.close()
 
                 val responseCode = urlConnection.responseCode
@@ -65,19 +67,32 @@ class LoginActivity : AppCompatActivity() {
                     Log.d("LoginActivity", "Token stored: $token")
 
                     runOnUiThread {
-                        Toast.makeText(this, "Login exitoso", Toast.LENGTH_LONG).show()
+                        showAlertDialog("Login exitoso", "¡Inicio de sesión completado exitosamente!")
                         startActivity(Intent(this, MapActivity::class.java))
                     }
                 } else {
+                    val response = BufferedReader(InputStreamReader(urlConnection.errorStream)).use { it.readText() }
+                    val jsonObject = JSONObject(response)
+                    val errorMessage = jsonObject.optString("message", "Login fallido")
+
                     runOnUiThread {
-                        Toast.makeText(this, "Login fallido", Toast.LENGTH_LONG).show()
+                        showAlertDialog("Login fallido", errorMessage)
                     }
                 }
             } catch (e: Exception) {
                 runOnUiThread {
-                    Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                    showAlertDialog("Error en login", "Error: ${e.message}")
                 }
+                Log.e("LoginActivity", "Error en login: ${e.message}", e)
             }
         }.start()
+    }
+
+    private fun showAlertDialog(title: String, message: String) {
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 }
