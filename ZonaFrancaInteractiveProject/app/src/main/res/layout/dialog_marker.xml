@@ -21,17 +21,8 @@
         android:id="@+id/colorSpinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-    <Button
-        android:id="@+id/selectImageButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Selecciona una imagen" />
-
-    <ImageView
-        android:id="@+id/selectedImageView"
+    <Spinner
+        android:id="@+id/imageSpinner"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:scaleType="centerCrop"
-        android:adjustViewBounds="true" />
+        android:layout_height="wrap_content" />
 </LinearLayout>

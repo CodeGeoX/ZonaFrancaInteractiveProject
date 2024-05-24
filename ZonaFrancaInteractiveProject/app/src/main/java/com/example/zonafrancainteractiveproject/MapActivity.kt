@@ -34,9 +34,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
     private val markerMap = mutableMapOf<Marker, Int>()
     private var editMode = false
     private var isGuest: Boolean = false
-    private val PICK_IMAGE_REQUEST = 1
-    private var imageUri: Uri? = null
-    private var selectedImageView: ImageView? = null
+    data class ImageItem(val name: String, val resourceId: Int)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -212,21 +210,27 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
                             val jsonResponse = JSONObject(response)
                             val title = jsonResponse.getJSONObject("data").getString("title")
                             val description = jsonResponse.getJSONObject("data").getString("description")
-                            val imageUrl = jsonResponse.getJSONObject("data").optString("image_path")
+                            val imageName = jsonResponse.getJSONObject("data").optString("image_path")
+
+                            Log.d("MapActivity", "Image name retrieved: $imageName")
 
                             runOnUiThread {
                                 val builder = AlertDialog.Builder(this@MapActivity)
                                 builder.setTitle(title)
                                 builder.setMessage(description)
 
-                                if (imageUrl.isNotEmpty()) {
-                                    val fullImageUrl = "http://192.168.199.174:8000/$imageUrl"
-                                    Log.d("MapActivity", "Loading image from URL: $fullImageUrl")
-
+                                if (imageName.isNotEmpty()) {
                                     val imageView = ImageView(this@MapActivity)
-                                    Glide.with(this@MapActivity).load(fullImageUrl).into(imageView)
-                                    builder.setView(imageView)
+                                    val resourceId = resources.getIdentifier(imageName, "drawable", packageName)
+                                    if (resourceId != 0) {
+                                        Log.d("MapActivity", "Image resource ID: $resourceId")
+                                        imageView.setImageResource(resourceId)
+                                        builder.setView(imageView)
+                                    } else {
+                                        Log.e("MapActivity", "Invalid image resource ID for image name: $imageName")
+                                    }
                                 }
+
 
                                 builder.setPositiveButton("OK", null)
                                 builder.show()
@@ -249,9 +253,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
         }
     }
 
-
-
-
     private fun showInputDialog(latlng: LatLng) {
         val inflater = layoutInflater
         val dialogView = inflater.inflate(R.layout.dialog_marker, null)
@@ -263,12 +264,15 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
             adapter = ArrayAdapter(this@MapActivity, android.R.layout.simple_spinner_dropdown_item, colors)
         }
 
-        val selectImageButton = dialogView.findViewById<Button>(R.id.selectImageButton)
-        selectedImageView = dialogView.findViewById(R.id.selectedImageView)
+        val images = listOf(
+            ImageItem("image1", R.drawable.image1),
+            ImageItem("image2", R.drawable.image2),
+            ImageItem("image3", R.drawable.image3),
+            ImageItem("image4", R.drawable.image4)
+        )
 
-        selectImageButton.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-            startActivityForResult(intent, PICK_IMAGE_REQUEST)
+        val imageSpinner = dialogView.findViewById<Spinner>(R.id.imageSpinner).apply {
+            adapter = ArrayAdapter(this@MapActivity, android.R.layout.simple_spinner_dropdown_item, images.map { it.name })
         }
 
         AlertDialog.Builder(this).apply {
@@ -278,20 +282,23 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
                 val title = titleBox.text.toString()
                 val description = descriptionBox.text.toString()
                 val color = colorSpinner.selectedItem.toString()
+                val image = images[imageSpinner.selectedItemPosition].name
+
                 addMarker(latlng, title, description, color)
-                saveMarkerToServer(latlng, title, description, color)
+                saveMarkerToServer(latlng, title, description, color, image)
             }
             setNegativeButton("Cancel", null)
             show()
         }
     }
 
+
     private fun addMarker(latlng: LatLng, title: String, description: String, color: String, markerId: Int? = null) {
         val markerOptions = MarkerOptions()
             .position(latlng)
             .title(title)
             .snippet(description)
-            .icon(BitmapDescriptorFactory.defaultMarker(getMarkerIcon(color)))
+            .icon(BitmapDescriptorFactory.defaultMarker(getMarkerIcon(color)))  // Usa el color correcto aquí
 
         val marker = mMap.addMarker(markerOptions)
         marker?.let {
@@ -299,6 +306,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
             if (markerId != null) markerMap[it] = markerId
         }
     }
+
 
     private fun showEditDeleteDialog(marker: Marker) {
         if (editMode) {
@@ -329,6 +337,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
         val colorSpinner = dialogView.findViewById<Spinner>(R.id.colorSpinner).apply {
             val colors = arrayOf("Red", "Blue", "Green", "Yellow")
             adapter = ArrayAdapter(this@MapActivity, android.R.layout.simple_spinner_dropdown_item, colors)
+            setSelection(colors.indexOf(marker.tag.toString()))
         }
 
         AlertDialog.Builder(this).apply {
@@ -340,12 +349,14 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
                 val newColor = colorSpinner.selectedItem.toString()
                 marker.title = newTitle
                 marker.snippet = newDescription
-                updateMarkerToServer(markerMap[marker]!!, newTitle, newDescription)
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(getMarkerIcon(newColor)))
+                updateMarkerToServer(markerMap[marker]!!, newTitle, newDescription, newColor)
             }
             setNegativeButton("Cancelar", null)
             show()
         }
     }
+
 
     private fun deleteMarker(marker: Marker) {
         AlertDialog.Builder(this).apply {
@@ -360,7 +371,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
         }
     }
 
-    private fun updateMarkerToServer(markerId: Int, title: String, description: String) {
+    private fun updateMarkerToServer(markerId: Int, title: String, description: String, color: String) {
         Thread {
             try {
                 val token = sharedPreferences.getString("token", null)
@@ -371,9 +382,13 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
                     setRequestProperty("Authorization", "Bearer $token")
                     doOutput = true
 
+                    val postData = StringBuilder().apply {
+                        append("title=${URLEncoder.encode(title, StandardCharsets.UTF_8.toString())}")
+                        append("&description=${URLEncoder.encode(description, StandardCharsets.UTF_8.toString())}")
+                        append("&color=${URLEncoder.encode(color, StandardCharsets.UTF_8.toString())}")
+                    }.toString()
+
                     OutputStreamWriter(outputStream).use { out ->
-                        val postData = "title=${URLEncoder.encode(title, StandardCharsets.UTF_8.toString())}" +
-                                "&description=${URLEncoder.encode(description, StandardCharsets.UTF_8.toString())}"
                         out.write(postData)
                     }
 
@@ -389,6 +404,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
             }
         }.start()
     }
+
 
     private fun deleteMarkerFromServer(markerId: Int) {
         Thread {
@@ -412,7 +428,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
         }.start()
     }
 
-    private fun saveMarkerToServer(latlng: LatLng, title: String, description: String, color: String) {
+    private fun saveMarkerToServer(latlng: LatLng, title: String, description: String, color: String, image: String) {
         Thread {
             try {
                 val token = sharedPreferences.getString("token", null)
@@ -429,15 +445,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
                         append("&lat=${latlng.latitude}")
                         append("&long=${latlng.longitude}")
                         append("&color=${URLEncoder.encode(color, StandardCharsets.UTF_8.toString())}")
-
-                        if (imageUri != null) {
-                            val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
-                            val byteArrayOutputStream = ByteArrayOutputStream()
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutputStream)
-                            val imageBytes = byteArrayOutputStream.toByteArray()
-                            val encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT)
-                            append("&image=$encodedImage")
-                        }
+                        append("&image=${URLEncoder.encode(image, StandardCharsets.UTF_8.toString())}")
                     }.toString()
 
                     OutputStreamWriter(outputStream).use { out ->
@@ -451,7 +459,11 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
                             val jsonResponse = JSONObject(responseMessage)
                             val markerId = jsonResponse.getInt("id")
                             runOnUiThread {
-                                val marker = mMap.addMarker(MarkerOptions().position(latlng).title(title).snippet(description))
+                                val marker = mMap.addMarker(MarkerOptions()
+                                    .position(latlng)
+                                    .title(title)
+                                    .snippet(description)
+                                    .icon(BitmapDescriptorFactory.defaultMarker(getMarkerIcon(color))))
                                 marker?.let {
                                     it.tag = color
                                     markerMap[it] = markerId
@@ -471,13 +483,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
         }.start()
     }
 
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
-            imageUri = data?.data
-            selectedImageView?.setImageURI(imageUri)
-            selectedImageView?.visibility = View.VISIBLE
-        }
     }
 
     private fun loadUserInterests() {
