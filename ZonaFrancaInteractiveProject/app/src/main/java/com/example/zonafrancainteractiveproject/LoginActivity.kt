@@ -62,7 +62,11 @@ class LoginActivity : AppCompatActivity() {
                     val response = BufferedReader(InputStreamReader(urlConnection.inputStream)).use { it.readText() }
                     val jsonObject = JSONObject(response)
                     val token = jsonObject.getString("token")
-                    sharedPreferences.edit().putString("token", token).apply()
+                    sharedPreferences.edit().apply {
+                        putString("token", token)
+                        putBoolean("isLoggedIn", true)
+                        apply()
+                    }
 
                     Log.d("LoginActivity", "Token stored: $token")
 
@@ -87,6 +91,7 @@ class LoginActivity : AppCompatActivity() {
             }
         }.start()
     }
+
 
     private fun showAlertDialog(title: String, message: String) {
         AlertDialog.Builder(this)

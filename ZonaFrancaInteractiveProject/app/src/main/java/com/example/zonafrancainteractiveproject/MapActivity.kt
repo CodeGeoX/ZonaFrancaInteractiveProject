@@ -13,6 +13,7 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -53,6 +54,62 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
                 showGuestAlert()
             }
         }
+
+    }
+
+    private fun showMarkerInfoFragment(marker: Marker) {
+        val markerId = markerMap[marker]
+        if (markerId != null) {
+            Thread {
+                try {
+                    val token = sharedPreferences.getString("token", null)
+                    val url = URL("http://192.168.199.174:8000/api/places_of_interests/$markerId")
+                    (url.openConnection() as HttpURLConnection).apply {
+                        requestMethod = "GET"
+                        setRequestProperty("Authorization", "Bearer $token")
+                        if (responseCode == HttpURLConnection.HTTP_OK) {
+                            val response = inputStream.bufferedReader().use { it.readText() }
+                            val jsonResponse = JSONObject(response)
+                            val title = jsonResponse.getJSONObject("data").getString("title")
+                            val description = jsonResponse.getJSONObject("data").getString("description")
+                            val imageName = jsonResponse.getJSONObject("data").optString("image_path")
+
+                            Log.d("MapActivity", "Image name retrieved: $imageName")
+
+                            runOnUiThread {
+                                val resourceId = resources.getIdentifier(imageName, "drawable", packageName)
+                                val fragment = MarkerInfoFragment.newInstance(title, description, resourceId)
+                                supportFragmentManager.beginTransaction()
+                                    .replace(R.id.fragment_container, fragment)
+                                    .addToBackStack(null)
+                                    .commit()
+
+                                Log.d("MapActivity", "Fragment added with title: $title")
+                            }
+                        } else {
+                            val errorMessage = inputStream.bufferedReader().use { it.readText() }
+                            Log.e("MapActivity", "Error loading marker details: $errorMessage")
+                            runOnUiThread {
+                                Toast.makeText(this@MapActivity, "Error loading marker details: $responseCode", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("MapActivity", "Error loading marker details: ${e.message}", e)
+                    runOnUiThread {
+                        Toast.makeText(this@MapActivity, "Error loading marker details", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }.start()
+        }
+    }
+
+
+    private fun hideMarkerInfoFragment() {
+        val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+        fragment?.let {
+            supportFragmentManager.beginTransaction().remove(it).commit()
+        }
     }
 
     private fun toggleEditMode() {
@@ -71,7 +128,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
 
         mMap.setOnMarkerClickListener { marker ->
             if (!editMode) {
-                showMarkerInfoDialog(marker)
+                showMarkerInfoFragment(marker)
             } else {
                 showEditDeleteDialog(marker)
             }
@@ -128,20 +185,21 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
     private fun toolbarLogout() {
         if (isUserLoggedIn()) {
             performLogout()
-            redirectToMainActivity()
         } else {
             showConfirmationDialog()
         }
     }
 
     private fun isUserLoggedIn(): Boolean {
-        val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
-        return isLoggedIn
+        return sharedPreferences.getBoolean("isLoggedIn", false)
     }
-
     private fun performLogout() {
         sharedPreferences.edit().clear().apply()
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish()
     }
+
 
     private fun getMarkerIcon(color: String): Float {
         return when (color) {
@@ -187,69 +245,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
             setTitle("Acción Restringida")
             setMessage("Debe estar registrado para realizar esta acción. ¿Desea registrarse ahora?")
             setPositiveButton("Registrar") { _, _ ->
-                // Redirigir al usuario a la pantalla de registro
                 startActivity(Intent(this@MapActivity, RegisterActivity::class.java))
             }
             setNegativeButton("Cancelar", null)
             show()
-        }
-    }
-
-    private fun showMarkerInfoDialog(marker: Marker) {
-        val markerId = markerMap[marker]
-        if (markerId != null) {
-            Thread {
-                try {
-                    val token = sharedPreferences.getString("token", null)
-                    val url = URL("http://192.168.199.174:8000/api/places_of_interests/$markerId")
-                    (url.openConnection() as HttpURLConnection).apply {
-                        requestMethod = "GET"
-                        setRequestProperty("Authorization", "Bearer $token")
-                        if (responseCode == HttpURLConnection.HTTP_OK) {
-                            val response = inputStream.bufferedReader().use { it.readText() }
-                            val jsonResponse = JSONObject(response)
-                            val title = jsonResponse.getJSONObject("data").getString("title")
-                            val description = jsonResponse.getJSONObject("data").getString("description")
-                            val imageName = jsonResponse.getJSONObject("data").optString("image_path")
-
-                            Log.d("MapActivity", "Image name retrieved: $imageName")
-
-                            runOnUiThread {
-                                val builder = AlertDialog.Builder(this@MapActivity)
-                                builder.setTitle(title)
-                                builder.setMessage(description)
-
-                                if (imageName.isNotEmpty()) {
-                                    val imageView = ImageView(this@MapActivity)
-                                    val resourceId = resources.getIdentifier(imageName, "drawable", packageName)
-                                    if (resourceId != 0) {
-                                        Log.d("MapActivity", "Image resource ID: $resourceId")
-                                        imageView.setImageResource(resourceId)
-                                        builder.setView(imageView)
-                                    } else {
-                                        Log.e("MapActivity", "Invalid image resource ID for image name: $imageName")
-                                    }
-                                }
-
-
-                                builder.setPositiveButton("OK", null)
-                                builder.show()
-                            }
-                        } else {
-                            val errorMessage = inputStream.bufferedReader().use { it.readText() }
-                            Log.e("MapActivity", "Error loading marker details: $errorMessage")
-                            runOnUiThread {
-                                Toast.makeText(this@MapActivity, "Error loading marker details: $responseCode", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.e("MapActivity", "Error loading marker details: ${e.message}", e)
-                    runOnUiThread {
-                        Toast.makeText(this@MapActivity, "Error loading marker details", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }.start()
         }
     }
 
@@ -292,13 +291,12 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
         }
     }
 
-
     private fun addMarker(latlng: LatLng, title: String, description: String, color: String, markerId: Int? = null) {
         val markerOptions = MarkerOptions()
             .position(latlng)
             .title(title)
             .snippet(description)
-            .icon(BitmapDescriptorFactory.defaultMarker(getMarkerIcon(color)))  // Usa el color correcto aquí
+            .icon(BitmapDescriptorFactory.defaultMarker(getMarkerIcon(color)))
 
         val marker = mMap.addMarker(markerOptions)
         marker?.let {
@@ -306,7 +304,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
             if (markerId != null) markerMap[it] = markerId
         }
     }
-
 
     private fun showEditDeleteDialog(marker: Marker) {
         if (editMode) {
@@ -357,7 +354,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
         }
     }
 
-
     private fun deleteMarker(marker: Marker) {
         AlertDialog.Builder(this).apply {
             setTitle("Confirmar Eliminación")
@@ -404,7 +400,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
             }
         }.start()
     }
-
 
     private fun deleteMarkerFromServer(markerId: Int) {
         Thread {
@@ -482,7 +477,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
             }
         }.start()
     }
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
