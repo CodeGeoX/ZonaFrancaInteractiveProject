@@ -28,6 +28,18 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import com.google.android.gms.location.LocationServices
+import androidx.core.app.ActivityCompat
+import com.android.volley.Request
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
+import android.Manifest
+import android.content.pm.PackageManager
+import android.graphics.Color
+import android.location.Location
+import android.os.Build
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.maps.android.PolyUtil
 
 class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClickListener {
     private lateinit var mMap: GoogleMap
@@ -35,7 +47,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
     private val markerMap = mutableMapOf<Marker, Int>()
     private var editMode = false
     private var isGuest: Boolean = false
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
     data class ImageItem(val name: String, val resourceId: Int)
+    private var currentPolyline: Polyline? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +60,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
         sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         val editModeButton = findViewById<Button>(R.id.editModeButton)
         editModeButton.setOnClickListener {
@@ -54,8 +70,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
                 showGuestAlert()
             }
         }
-
     }
+
+
 
     private fun showMarkerInfoFragment(marker: Marker) {
         val markerId = markerMap[marker]
@@ -63,7 +80,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
             Thread {
                 try {
                     val token = sharedPreferences.getString("token", null)
-                    val url = URL("http://192.168.199.174:8000/api/places_of_interests/$markerId")
+                    val url = URL("http://172.20.10.2:8000/api/places_of_interests/$markerId")
                     (url.openConnection() as HttpURLConnection).apply {
                         requestMethod = "GET"
                         setRequestProperty("Authorization", "Bearer $token")
@@ -122,15 +139,17 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
         mMap = googleMap
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(41.3544, 2.1265), 15f))
         mMap.setOnMapClickListener(this)
+        showUserLocation()
+
         if (!isGuest) {
             loadUserInterests()
         }
 
         mMap.setOnMarkerClickListener { marker ->
             if (!editMode) {
-                showMarkerInfoFragment(marker)
+                showMarkerOptionsDialog(marker)
             } else {
-                showEditDeleteDialog(marker)
+                showMarkerInfoFragment(marker)
             }
             true
         }
@@ -172,9 +191,41 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
         btnLogout.setOnClickListener {
             toolbarLogout()
         }
+        showUserLocation()
     }
+private fun showUserLocation() {
+    checkPermission()
+    fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+        if (location != null) {
+            val latLng = LatLng(location.latitude, location.longitude)
+            Log.d("MapActivity", "User location: ($latLng)")
+            Toast.makeText(this, "Your location: ($latLng)", Toast.LENGTH_LONG).show()
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 12f))
+        } else {
+            Log.e("MapActivity", "No location found")
+            Toast.makeText(this, "No location found", Toast.LENGTH_LONG).show()
+        }
+    }.addOnFailureListener { e ->
+        Log.e("MapActivity", "Failed to get user location: ${e.message}", e)
+        Toast.makeText(this, "Failed to get user location: ${e.message}", Toast.LENGTH_LONG).show()
+    }
+}
+fun checkPermission() {
+    if (Build.VERSION.SDK_INT >= 23) {
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+            checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            Log.d("MapActivity", "Granted")
+        } else {
+            ActivityCompat.requestPermissions(this, arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ), 1)
+        }
+    }
+}
 
-    private fun toggleLinearLayoutVisibility(linearLayout: LinearLayout) {
+
+private fun toggleLinearLayoutVisibility(linearLayout: LinearLayout) {
         if (linearLayout.visibility == View.VISIBLE) {
             linearLayout.visibility = View.GONE
         } else {
@@ -185,6 +236,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
     private fun toolbarLogout() {
         if (isUserLoggedIn()) {
             performLogout()
+            redirectToMainActivity()
         } else {
             showConfirmationDialog()
         }
@@ -252,6 +304,111 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
         }
     }
 
+    private fun showMarkerOptionsDialog(marker: Marker) {
+        val options = arrayOf("Mostrar Ruta", "Información")
+        AlertDialog.Builder(this).apply {
+            setTitle(marker.title)
+            setItems(options) { _, which ->
+                when (which) {
+                    0 -> displayRoute(marker.position)
+                    1 -> showMarkerInfoDialog(marker)
+                }
+            }
+            show()
+        }
+    }
+    private fun displayRoute(endPoint: LatLng) {
+        checkPermission()
+        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            val startPoint: LatLng = if (location != null) {
+                LatLng(location.latitude, location.longitude)
+            } else {
+                LatLng(41.4434175, 2.077225)
+            }
+            val url = "https://maps.googleapis.com/maps/api/directions/json?" +
+                    "origin=${startPoint.latitude},${startPoint.longitude}" +
+                    "&destination=${endPoint.latitude},${endPoint.longitude}" +
+                    "&key=AIzaSyA2G0516RzxWaUzStSnr92YtbZUDUH_aJw"
+            val jsonObjectRequest = JsonObjectRequest(
+                Request.Method.GET, url, null,
+                { response ->
+                    val routes = response.getJSONArray("routes")
+                    if (routes.length() > 0) {
+                        val route = routes.getJSONObject(0)
+                        val polyline = route.getJSONObject("overview_polyline")
+                        val polylinePoints = polyline.getString("points")
+                        val decodedPolyline = PolyUtil.decode(polylinePoints)
+                        currentPolyline?.remove()
+                        currentPolyline = mMap.addPolyline(PolylineOptions()
+                            .addAll(decodedPolyline)
+                            .color(Color.RED))
+                        showButtons()
+                        Toast.makeText(this, "Ruta mostrada con éxito", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "No se encontraron rutas", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                { error ->
+                    Log.e("MapActivity", "Error fetching route: ${error.message}")
+                    Toast.makeText(this, "Error fetching route", Toast.LENGTH_SHORT).show()
+                })
+            Volley.newRequestQueue(this).add(jsonObjectRequest)}.addOnFailureListener { e ->
+            Log.e("MapActivity", "Failed to get user location: ${e.message}", e)
+            Toast.makeText(this, "Failed to get user location: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+    private fun showMarkerInfoDialog(marker: Marker) {
+        val markerId = markerMap[marker]
+        if (markerId != null) {
+            Thread {
+                try {
+                    val token = sharedPreferences.getString("token", null)
+                    val url = URL("http://172.20.10.2:8000/api/places_of_interests/$markerId")
+                    (url.openConnection() as HttpURLConnection).apply {
+                        requestMethod = "GET"
+                        setRequestProperty("Authorization", "Bearer $token")
+                        if (responseCode == HttpURLConnection.HTTP_OK) {
+                            val response = inputStream.bufferedReader().use { it.readText() }
+                            val jsonResponse = JSONObject(response)
+                            val title = jsonResponse.getJSONObject("data").getString("title")
+                            val description = jsonResponse.getJSONObject("data").getString("description")
+                            val imageName = jsonResponse.getJSONObject("data").optString("image_path")
+                            Log.d("MapActivity", "Image name retrieved: $imageName")
+                            runOnUiThread {
+                                val builder = AlertDialog.Builder(this@MapActivity)
+                                builder.setTitle(title)
+                                builder.setMessage(description)
+                                if (imageName.isNotEmpty()) {
+                                    val imageView = ImageView(this@MapActivity)
+                                    val resourceId = resources.getIdentifier(imageName, "drawable", packageName)
+                                    if (resourceId != 0) {
+                                        Log.d("MapActivity", "Image resource ID: $resourceId")
+                                        imageView.setImageResource(resourceId)
+                                        builder.setView(imageView)
+                                    } else {
+                                        Log.e("MapActivity", "Invalid image resource ID for image name: $imageName")
+                                    }
+                                }
+                                builder.setPositiveButton("OK", null)
+                                builder.show()
+                            }
+                        } else {
+                            val errorMessage = inputStream.bufferedReader().use { it.readText() }
+                            Log.e("MapActivity", "Error loading marker details: $errorMessage")
+                            runOnUiThread {
+                                Toast.makeText(this@MapActivity, "Error loading marker details: $responseCode", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("MapActivity", "Error loading marker details: ${e.message}", e)
+                    runOnUiThread {
+                        Toast.makeText(this@MapActivity, "Error loading marker details", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }.start()
+        }
+    }
     private fun showInputDialog(latlng: LatLng) {
         val inflater = layoutInflater
         val dialogView = inflater.inflate(R.layout.dialog_marker, null)
@@ -371,7 +528,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
         Thread {
             try {
                 val token = sharedPreferences.getString("token", null)
-                val url = URL("http://192.168.199.174:8000/api/places_of_interests/$markerId")
+                val url = URL("http://172.20.10.2:8000/api/places_of_interests/$markerId")
                 (url.openConnection() as HttpURLConnection).apply {
                     requestMethod = "PUT"
                     setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
@@ -405,7 +562,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
         Thread {
             try {
                 val token = sharedPreferences.getString("token", null)
-                val url = URL("http://192.168.199.174:8000/api/places_of_interests/$markerId")
+                val url = URL("http://172.20.10.2:8000/api/places_of_interests/$markerId")
                 (url.openConnection() as HttpURLConnection).apply {
                     requestMethod = "DELETE"
                     setRequestProperty("Authorization", "Bearer $token")
@@ -427,7 +584,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
         Thread {
             try {
                 val token = sharedPreferences.getString("token", null)
-                val url = URL("http://192.168.199.174:8000/api/crearPunto")
+                val url = URL("http://172.20.10.2:8000/api/crearPunto")
                 (url.openConnection() as HttpURLConnection).apply {
                     requestMethod = "POST"
                     setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
@@ -486,7 +643,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
         Thread {
             try {
                 val token = sharedPreferences.getString("token", null)
-                val url = URL("http://192.168.199.174:8000/api/getUserPoints")
+                val url = URL("http://172.20.10.2:8000/api/getUserPoints")
                 (url.openConnection() as HttpURLConnection).apply {
                     requestMethod = "GET"
                     setRequestProperty("Authorization", "Bearer $token")
@@ -515,5 +672,13 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
                 Log.e("MapActivity", "Error loading points: ${e.message}", e)
             }
         }.start()
+    }
+    private fun showButtons() {
+        val bikeBtn = findViewById<ImageButton>(R.id.bikeBtn)
+        val carBtn = findViewById<ImageButton>(R.id.carBtn)
+        val walkBtn = findViewById<ImageButton>(R.id.walkBtn)
+        bikeBtn.visibility = View.VISIBLE
+        carBtn.visibility = View.VISIBLE
+        walkBtn.visibility = View.VISIBLE
     }
 }

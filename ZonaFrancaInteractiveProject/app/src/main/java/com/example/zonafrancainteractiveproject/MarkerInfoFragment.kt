@@ -31,7 +31,6 @@ class MarkerInfoFragment : Fragment() {
         imageView.setImageResource(imageResource)
 
         btnExit.setOnClickListener {
-            // Cierra el fragmento
             fragmentManager?.beginTransaction()?.remove(this)?.commit()
         }
 

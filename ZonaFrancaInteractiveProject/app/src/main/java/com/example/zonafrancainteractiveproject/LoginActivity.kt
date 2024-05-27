@@ -46,7 +46,7 @@ class LoginActivity : AppCompatActivity() {
     private fun loginUser(email: String, password: String) {
         Thread {
             try {
-                val url = URL("http://192.168.199.174:8000/api/login")
+                val url = URL("http://172.20.10.2:8000/api/login")
                 val urlConnection = url.openConnection() as HttpURLConnection
                 urlConnection.requestMethod = "POST"
                 urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
