@@ -34,10 +34,13 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".MapActivity"/>
         <activity android:name=".MarkerInfoFragment" />
+        <activity android:name=".MarkerListActivity" />
+        <activity android:name=".SettingsActivity" />
         <activity android:name=".Actividad1Activity" />
         <activity android:name=".Actividad2Activity" />
         <activity android:name=".Actividad3Activity" />
         <activity android:name=".Actividad4Activity" />
+
     </application>
 
 </manifest>

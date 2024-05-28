@@ -1,19 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ZonaFrancaInteractiveProject</string>
-    <string name="desc_sitios_interes">En esta sección puedes consultar distintas localizaciones dentro de la Zona Franca que puedes visitar con algo de información respecto a esta.</string>
-    <string name="sitios_de_interes">Sitios de Interes</string>
+    <string name="desc_sitios_interes">En aquesta secció podeu consultar diferents localitzacions dins de la Zona Franca que podeu visitar amb una mica d\'informació respecte a aquesta.</string>
+    <string name="sitios_de_interes">Llocs d\'interès</string>
     <string name="dfactory">DFactory</string>
     <string name="_3dfactory">3DFactory</string>
     <string name="incubadora_log_stica_4_0">Incubadora logística 4.0</string>
     <string name="new_post_barcelona">New Post Barcelona</string>
-    <string name="paradas_de_bus">Paradas de Bus</string>
-    <string name="paradas_de_metro">Paradas de Metro</string>
-    <string name="paradas_de_tren">Paradas de Tren</string>
+    <string name="paradas_de_bus">Parades de Bus</string>
+    <string name="paradas_de_metro">Parades de Metro</string>
+    <string name="paradas_de_tren">Parades de Tren</string>
     <string name="cambiar_idioma">Cambiar idioma</string>
-    <string name="ingl_s">Inglés</string>
-    <string name="catal_n">Catalán</string>
+    <string name="ingl_s">Anglès</string>
+    <string name="catal_n">Català</string>
     <string name="configuraci">Configuració</string>
-    <string name="castellano">Castellano</string>
+    <string name="castellano">Español</string>
     <string name="desc_act01">És una iniciativa liderada pel Consorci de la Zona Franca de Barcelona i té per objectiu fomentar i desenvolupar la indústria 4.0 potenciant un ecosistema d’atracció de talent, tecnologia i inversions en un espai únic.</string>
     <string name="desc_act02">Impulsat pel CZFB i el centre tecnològic Leitat amb el recolzament de Fons FEDER a través de la Fundació Incyde de les Cambres de Comerç d’Espanya, és la primera incubadora empresarial d’alta tecnologia 3D a Europa, i té per objectiu incubar les 100 millors iniciatives vinculades amb la fabricació aditiva.</string>
     <string name="desc_act03">La primera incubadora d’Espanya dedicada a la indústria 4.0 a l’àmbit de la cadena de valor del sector logístic. El seu objectiu és seleccionar les 25 startups més atractives del món de la logística que vulguin desenvolupar la seva pròpia tecnologia perquè entrin al nostre programa d’incubació.</string>

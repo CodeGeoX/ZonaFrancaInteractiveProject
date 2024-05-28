@@ -48,6 +48,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
     private var editMode = false
     private var isGuest: Boolean = false
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private val busMarkers = mutableListOf<Marker>()
+    private val metroMarkers = mutableListOf<Marker>()
+    private var isBusMarkersVisible = false
+    private var isMetroMarkersVisible = false
     data class ImageItem(val name: String, val resourceId: Int)
     private var currentPolyline: Polyline? = null
 
@@ -70,10 +74,81 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
                 showGuestAlert()
             }
         }
+
+        val btnBusStops: Button = findViewById(R.id.button2)
+        val btnMetroStops: Button = findViewById(R.id.button3)
+
+        btnBusStops.setOnClickListener { toggleBusMarkers() }
+        btnMetroStops.setOnClickListener { toggleMetroMarkers() }
+
+        val btnSettings = findViewById<ImageView>(R.id.btnSettings)
+        btnSettings.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+    }
+
+    private fun addBusMarkers() {
+        val busStop1 = LatLng(41.34092450502622, 2.124803828987694)
+        val busStop2 = LatLng(41.34730213567594, 2.142271523641264)
+        val busStop3 = LatLng(41.34730213567594, 2.142271523641264)
+        busMarkers.add(mMap.addMarker(MarkerOptions().position(busStop1).title("Parada de bus 1"))!!)
+        busMarkers.add(mMap.addMarker(MarkerOptions().position(busStop2).title("Parada de bus 2"))!!)
+        busMarkers.add(mMap.addMarker(MarkerOptions().position(busStop3).title("Parada de bus 3"))!!)
+
+    }
+
+    private fun addMetroMarkers() {
+        val metroStop1 = LatLng(41.34217937337769, 2.127723222383119)
+        val metroStop2 = LatLng(41.34321040195646, 2.145018105589703)
+        val metroStop3 = LatLng(41.336476201695874, 2.1406407406093786)
+        val metroStop4 = LatLng(41.33106479899862, 2.1372071405153448)
+        val metroStop5 = LatLng(41.32475027469133, 2.133108734863772)
+        val metroStop6 = LatLng(41.347564573647546, 2.142365478663013)
+
+        metroMarkers.add(mMap.addMarker(MarkerOptions().position(metroStop1).title("Parada de metro 1"))!!)
+        metroMarkers.add(mMap.addMarker(MarkerOptions().position(metroStop2).title("Parada de metro 2"))!!)
+        metroMarkers.add(mMap.addMarker(MarkerOptions().position(metroStop3).title("Parada de metro 3"))!!)
+        metroMarkers.add(mMap.addMarker(MarkerOptions().position(metroStop4).title("Parada de metro 4"))!!)
+        metroMarkers.add(mMap.addMarker(MarkerOptions().position(metroStop5).title("Parada de metro 5"))!!)
+        metroMarkers.add(mMap.addMarker(MarkerOptions().position(metroStop6).title("Parada de metro 5"))!!)
+
     }
 
 
 
+    private fun toggleBusMarkers() {
+        if (!isBusMarkersVisible) {
+            if (busMarkers.isEmpty()) {
+                addBusMarkers()
+            }
+            setMarkersVisibility(busMarkers, true)
+            setMarkersVisibility(metroMarkers, false)
+            isMetroMarkersVisible = false
+        } else {
+            setMarkersVisibility(busMarkers, false)
+        }
+        isBusMarkersVisible = !isBusMarkersVisible
+    }
+
+    private fun toggleMetroMarkers() {
+        if (!isMetroMarkersVisible) {
+            if (metroMarkers.isEmpty()) {
+                addMetroMarkers()
+            }
+            setMarkersVisibility(metroMarkers, true)
+            setMarkersVisibility(busMarkers, false)
+            isBusMarkersVisible = false
+        } else {
+            setMarkersVisibility(metroMarkers, false)
+        }
+        isMetroMarkersVisible = !isMetroMarkersVisible
+    }
+
+    private fun setMarkersVisibility(markers: List<Marker>, visible: Boolean) {
+        for (marker in markers) {
+            marker.isVisible = visible
+        }
+    }
     private fun showMarkerInfoFragment(marker: Marker) {
         val markerId = markerMap[marker]
         if (markerId != null) {
@@ -149,9 +224,14 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
             if (!editMode) {
                 showMarkerOptionsDialog(marker)
             } else {
-                showMarkerInfoFragment(marker)
+                showEditDeleteDialog(marker)
             }
             true
+        }
+
+        val btnListMarkers = findViewById<ImageView>(R.id.btnListMarkers)
+        btnListMarkers.setOnClickListener {
+            showMarkerList()
         }
 
         val btnActividad = findViewById<ImageView>(R.id.btnActividad)
@@ -192,6 +272,19 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClic
             toolbarLogout()
         }
         showUserLocation()
+    }
+
+    private fun showMarkerList() {
+        val markerList = ArrayList<MarkerData>()
+        for (marker in markerMap.keys) {
+            val title = marker.title ?: "No Title"
+            val description = marker.snippet ?: "No Description"
+            markerList.add(MarkerData(title, description))
+        }
+
+        val intent = Intent(this, MarkerListActivity::class.java)
+        intent.putExtra("markerList", markerList)
+        startActivity(intent)
     }
 private fun showUserLocation() {
     checkPermission()
@@ -311,7 +404,7 @@ private fun toggleLinearLayoutVisibility(linearLayout: LinearLayout) {
             setItems(options) { _, which ->
                 when (which) {
                     0 -> displayRoute(marker.position)
-                    1 -> showMarkerInfoDialog(marker)
+                    1 -> showMarkerInfoFragment(marker)
                 }
             }
             show()

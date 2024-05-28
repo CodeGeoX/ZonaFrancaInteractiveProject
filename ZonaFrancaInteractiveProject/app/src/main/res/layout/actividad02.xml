@@ -36,7 +36,7 @@
         android:layout_width="364dp"
         android:layout_height="205dp"
         android:autoSizeTextType="uniform"
-        android:text="Impulsat pel CZFB i el centre tecnològic Leitat amb el recolzament de Fons FEDER a través de la Fundació Incyde de les Cambres de Comerç d’Espanya, és la primera incubadora empresarial d’alta tecnologia 3D a Europa, i té per objectiu incubar les 100 millors iniciatives vinculades amb la fabricació aditiva."
+        android:text="@string/desc_act02"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.489"

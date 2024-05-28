@@ -37,7 +37,7 @@
         android:layout_width="364dp"
         android:layout_height="205dp"
         android:autoSizeTextType="uniform"
-        android:text="El Consorci de la Zona Franca de Barcelona (CZFB) va tancar un acord amb Correus i amb l’Ajuntament de Barcelona el 2020 per transformar l’emblemàtic edifici de Correus de Via Laietana en un espai de dinamització econòmica, digitalització i formació. Estem donant forma a aquest projecte disruptiu, The New Post Barcelona, que tornarà a impulsar la nostra ciutat com a referent internacional de la transformació econòmica i social.  "
+        android:text="@string/desc_act04"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.489"

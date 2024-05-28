@@ -28,7 +28,9 @@ class MarkerInfoFragment : Fragment() {
 
         tvTitle.text = title
         tvDescription.text = description
-        imageView.setImageResource(imageResource)
+        if (imageResource != 0) {
+            imageView.setImageResource(imageResource)
+        }
 
         btnExit.setOnClickListener {
             fragmentManager?.beginTransaction()?.remove(this)?.commit()

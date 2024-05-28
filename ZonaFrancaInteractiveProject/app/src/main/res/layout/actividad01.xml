@@ -37,7 +37,7 @@
         android:layout_width="364dp"
         android:layout_height="205dp"
         android:autoSizeTextType="uniform"
-        android:text="És una iniciativa liderada pel Consorci de la Zona Franca de Barcelona i té per objectiu fomentar i  desenvolupar la indústria 4.0 potenciant un ecosistema d’atracció de talent, tecnologia i inversions en un espai únic."
+        android:text="@string/desc_act01"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.489"

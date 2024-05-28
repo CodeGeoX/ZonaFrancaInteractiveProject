@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ZonaFrancaInteractiveProject</string>
+    <string name="desc_sitios_interes">En esta sección puedes consultar distintas localizaciones dentro de la Zona Franca que puedes visitar con algo de información respecto a esta.</string>
+    <string name="sitios_de_interes">Sitios de Interes</string>
+    <string name="dfactory">DFactory</string>
+    <string name="_3dfactory">3DFactory</string>
+    <string name="incubadora_log_stica_4_0">Incubadora logística 4.0</string>
+    <string name="new_post_barcelona">New Post Barcelona</string>
+    <string name="paradas_de_bus">Paradas de Bus</string>
+    <string name="paradas_de_metro">Paradas de Metro</string>
+    <string name="paradas_de_tren">Paradas de Tren</string>
+    <string name="cambiar_idioma">Cambiar idioma</string>
+    <string name="ingl_s">Inglés</string>
+    <string name="catal_n">Catalán</string>
+    <string name="configuraci">Configuración</string>
+    <string name="castellano">Espanyol</string>
+    <string name="desc_act01">Es una iniciativa liderada por el Consorcio de Zona Franca de Barcelona y tiene por objetivo fomentar y desarrollar la industria 4.0 potenciando un ecosistema de atracción de talento, tecnología e inversiones en un espacio único.</string>
+    <string name="desc_act02">Impulsado por el CZFB y el centro tecnológico Leitat con el apoyo de Fondos FEDER a través de la Fundación Incyde de las Cámaras de Comercio de España, es la primera incubadora empresarial de alta tecnología 3D en Europa, y tiene por objetivo incubar a las 100 mejores iniciativas vinculadas con la fabricación aditiva.</string>
+    <string name="desc_act03">La primera incubadora de España dedicada a la industria 4.0 en el ámbito de la cadena de valor del sector logístico. Su objetivo es seleccionar las 25 startups más atractivas del mundo de la logística que quieran desarrollar su propia tecnología para que entren en nuestro programa de incubación.</string>
+    <string name="desc_act04">El Consorcio de la Zona Franca de Barcelona (CZFB) cerró un acuerdo con Correos y con el Ayuntamiento de Barcelona en 2020 para transformar el emblemático edificio de Correos de Via Laietana en un espacio de dinamización económica, digitalización y formación. Estamos dando forma a este proyecto disruptivo, The New Post Barcelona, que volverá a impulsar a nuestra ciudad como referente internacional de la transformación económica y social.</string>
+</resources>

@@ -11,7 +11,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView8"
@@ -24,7 +24,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-
 
     <ImageButton
         android:id="@+id/bikeBtn"
@@ -142,7 +141,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:autoSizeTextType="none"
-            android:text="Sitios de Interes"
+            android:text="@string/sitios_de_interes"
             android:textSize="20dp"
             android:textStyle="bold" />
 
@@ -153,7 +152,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:autoSizeTextType="uniform"
-            android:text="En esta sección puedes consultar distintas localizaciones dentro de la Zona Franca que puedes visitar con algo de información respecto a esta." />
+            android:text="@string/desc_sitios_interes" />
 
         <Button
             android:id="@+id/btnToAct01"
@@ -161,7 +160,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:backgroundTint="#FA4B4B"
-            android:text="DFactory" />
+            android:text="@string/dfactory" />
 
         <Button
             android:id="@+id/btnToAct02"
@@ -169,7 +168,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:backgroundTint="#FA4B4B"
-            android:text="3DFactory" />
+            android:text="@string/_3dfactory" />
 
         <Button
             android:id="@+id/btnToAct03"
@@ -177,7 +176,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:backgroundTint="#FA4B4B"
-            android:text="Incubadora logística 4.0 " />
+            android:text="@string/incubadora_log_stica_4_0" />
 
         <Button
             android:id="@+id/btnToAct04"
@@ -185,7 +184,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:backgroundTint="#FA4B4B"
-            android:text="New Post Barcelona" />
+            android:text="@string/new_post_barcelona" />
     </LinearLayout>
 
     <ImageView
@@ -223,7 +222,7 @@
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:autoSizeTextType="uniform"
-            android:text="Paradas de Bus"
+            android:text="@string/paradas_de_bus"
             android:textAlignment="viewStart" />
 
         <androidx.appcompat.widget.AppCompatButton
@@ -231,7 +230,7 @@
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:autoSizeTextType="uniform"
-            android:text="Paradas de Metro"
+            android:text="@string/paradas_de_metro"
             android:textAlignment="viewStart" />
 
         <androidx.appcompat.widget.AppCompatButton
@@ -239,7 +238,7 @@
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:autoSizeTextType="uniform"
-            android:text="Paradas de Tren"
+            android:text="@string/paradas_de_tren"
             android:textAlignment="viewStart" />
     </LinearLayout>
 
